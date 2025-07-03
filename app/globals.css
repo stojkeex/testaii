@@ -1,0 +1,175 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --vh: 1vh;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  height: 100vh;
+  height: calc(var(--vh, 1vh) * 100);
+  overflow: hidden;
+  font-family: "Inter", sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* Animated Gradient Backgrounds */
+.bg-animated-blue-purple {
+  background: linear-gradient(-45deg, #667eea, #764ba2, #667eea, #764ba2);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+}
+
+.bg-animated-user-gradient {
+  background: linear-gradient(-45deg, #8e44ad, #3498db, #8e44ad, #3498db);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+}
+
+.bg-animated-peach-yellow {
+  background: linear-gradient(-45deg, #ffcc70, #ff6b35, #ffa726, #ff8f00);
+  background-size: 400% 400%;
+  animation: gradientShift 12s ease infinite;
+}
+
+.bg-animated-red-orange {
+  background: linear-gradient(-45deg, #ff416c, #ff4b2b, #ff6b35, #ff8f00);
+  background-size: 400% 400%;
+  animation: gradientShift 18s ease infinite;
+}
+
+.bg-animated-cosmic {
+  background: linear-gradient(-45deg, #0c0c0c, #1a1a2e, #16213e, #0f3460);
+  background-size: 400% 400%;
+  animation: gradientShift 20s ease infinite;
+}
+
+.bg-animated-aurora {
+  background: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #f5576c);
+  background-size: 400% 400%;
+  animation: gradientShift 14s ease infinite;
+}
+
+.bg-animated-sunset {
+  background: linear-gradient(-45deg, #f093fb, #f5576c, #ff9a9e, #fecfef);
+  background-size: 400% 400%;
+  animation: gradientShift 16s ease infinite;
+}
+
+.bg-animated-ocean {
+  background: linear-gradient(-45deg, #4facfe, #00f2fe, #a8edea, #fed6e3);
+  background-size: 400% 400%;
+  animation: gradientShift 13s ease infinite;
+}
+
+.bg-animated-forest {
+  background: linear-gradient(-45deg, #43e97b, #38f9d7, #11998e, #38ef7d);
+  background-size: 400% 400%;
+  animation: gradientShift 17s ease infinite;
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Button Styles */
+.btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  color: white;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+}
+
+/* Setup Card */
+.setup-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.setup-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Input styling */
+.input-style {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.input-style:focus {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(102, 126, 234, 0.5);
+  box-shadow: 0 0 20px rgba(102, 126, 234, 0.2);
+  outline: none;
+}
+
+.input-style::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.input-style option {
+  background-color: #262626;
+  color: white;
+}
+
+/* Chat Header */
+.chat-header {
+  background: rgba(0, 0, 0, 0.9);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* Mobile viewport fix */
+@media screen and (max-width: 767px) {
+  html,
+  body {
+    height: 100vh;
+    height: -webkit-fill-available;
+  }
+}
