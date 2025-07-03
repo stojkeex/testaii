@@ -472,50 +472,57 @@ export default function ChatPage() {
   // Mobile Layout
   if (isMobile) {
     return (
-      <div className="h-screen w-full bg-black flex flex-col overflow-hidden">
+      <div className="mobile-container bg-black">
         {/* Mobile Inbox Overlay */}
         {showInbox && (
-          <div className="fixed inset-0 bg-black z-50 flex flex-col">
+          <div className="fixed inset-0 bg-black z-50 mobile-container">
             {/* Mobile Inbox Header */}
-            <div className="flex items-center justify-between p-4 border-b border-gray-800 bg-black safe-area-top">
-              <button
-                onClick={() => setShowInbox(false)}
-                className="p-2 hover:bg-gray-800 rounded-full transition-colors"
-              >
-                <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-              <h1 className="text-xl font-bold text-white">{userProfile?.name}</h1>
-              <div className="flex space-x-2">
-                <Link
-                  href="/create-group"
+            <div className="mobile-header flex items-center justify-between px-4 bg-black border-b border-gray-800">
+              <div className="safe-area-top flex items-center justify-between w-full py-3">
+                <button
+                  onClick={() => setShowInbox(false)}
                   className="p-2 hover:bg-gray-800 rounded-full transition-colors"
-                  title="New Group"
                 >
-                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                   </svg>
-                </Link>
-                <Link
-                  href="/gender-selection"
-                  className="p-2 hover:bg-gray-800 rounded-full transition-colors"
-                  title="New Chat"
-                >
-                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                    />
-                  </svg>
-                </Link>
+                </button>
+                <h1 className="text-xl font-bold text-white">{userProfile?.name}</h1>
+                <div className="flex space-x-2">
+                  <Link
+                    href="/create-group"
+                    className="p-2 hover:bg-gray-800 rounded-full transition-colors"
+                    title="New Group"
+                  >
+                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                      />
+                    </svg>
+                  </Link>
+                  <Link
+                    href="/gender-selection"
+                    className="p-2 hover:bg-gray-800 rounded-full transition-colors"
+                    title="New Chat"
+                  >
+                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                      />
+                    </svg>
+                  </Link>
+                </div>
               </div>
             </div>
 
             {/* Mobile Chat List */}
-            <div className="flex-1 overflow-y-auto bg-black">
+            <div className="mobile-messages bg-black">
               {allProfiles.map((profile) => {
                 const history = getChatHistory(profile.id)
                 const lastMessage = history[history.length - 1]
@@ -554,112 +561,114 @@ export default function ChatPage() {
         )}
 
         {/* Mobile Chat Interface */}
-        <div className={`flex-1 flex flex-col ${activeProfile.theme || "bg-animated-blue-purple"}`}>
+        <div className={`mobile-container ${activeProfile.theme || "bg-animated-blue-purple"}`}>
           {/* Mobile Header - Instagram Style */}
-          <div className="flex items-center justify-between px-4 py-3 bg-black/90 backdrop-blur-sm border-b border-white/10 safe-area-top">
-            <div className="flex items-center flex-1 min-w-0">
-              <button
-                onClick={() => setShowInbox(true)}
-                className="p-2 mr-2 hover:bg-white/10 rounded-full transition-colors flex-shrink-0"
-              >
-                <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-              <img
-                src={
-                  activeProfile.img || `https://placehold.co/40x40/667eea/ffffff?text=${activeProfile.name.charAt(0)}`
-                }
-                alt={activeProfile.name}
-                className="w-10 h-10 rounded-full object-cover mr-3 flex-shrink-0"
-              />
-              <div className="flex-1 min-w-0">
-                <h2 className="text-white font-semibold text-lg truncate">{activeProfile.name}</h2>
-                {activeProfile.type === "individual" && (
-                  <p className="text-gray-300 text-sm flex items-center">
-                    <span className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span>
-                    Active now
-                  </p>
-                )}
-                {activeProfile.type === "group" && (
-                  <p className="text-gray-300 text-sm">{activeProfile.members?.length || 0} members</p>
-                )}
-              </div>
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <button className="p-2 hover:bg-white/10 rounded-full transition-colors">
-                <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                  />
-                </svg>
-              </button>
-              <button className="p-2 hover:bg-white/10 rounded-full transition-colors">
-                <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 012 2z"
-                  />
-                </svg>
-              </button>
-
-              <div className="relative">
+          <div className="mobile-header bg-black/90 backdrop-blur-sm border-b border-white/10">
+            <div className="safe-area-top flex items-center justify-between px-4 py-3">
+              <div className="flex items-center flex-1 min-w-0">
                 <button
-                  onClick={() => setShowDropdown(!showDropdown)}
-                  className="p-2 hover:bg-white/10 rounded-full transition-colors"
+                  onClick={() => setShowInbox(true)}
+                  className="p-2 mr-2 hover:bg-white/10 rounded-full transition-colors flex-shrink-0"
                 >
-                  <svg className="h-6 w-6 text-white" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                  <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                <img
+                  src={
+                    activeProfile.img || `https://placehold.co/40x40/667eea/ffffff?text=${activeProfile.name.charAt(0)}`
+                  }
+                  alt={activeProfile.name}
+                  className="w-10 h-10 rounded-full object-cover mr-3 flex-shrink-0"
+                />
+                <div className="flex-1 min-w-0">
+                  <h2 className="text-white font-semibold text-lg truncate">{activeProfile.name}</h2>
+                  {activeProfile.type === "individual" && (
+                    <p className="text-gray-300 text-sm flex items-center">
+                      <span className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span>
+                      Active now
+                    </p>
+                  )}
+                  {activeProfile.type === "group" && (
+                    <p className="text-gray-300 text-sm">{activeProfile.members?.length || 0} members</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <button className="p-2 hover:bg-white/10 rounded-full transition-colors">
+                  <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                    />
+                  </svg>
+                </button>
+                <button className="p-2 hover:bg-white/10 rounded-full transition-colors">
+                  <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 012 2z"
+                    />
                   </svg>
                 </button>
 
-                {showDropdown && (
-                  <div className="absolute right-0 top-full mt-2 w-48 bg-gray-800/95 backdrop-blur-sm rounded-lg shadow-lg py-1 z-50">
-                    <button
-                      onClick={() => {
-                        setShowThemeModal(true)
-                        setShowDropdown(false)
-                      }}
-                      className="w-full text-left block px-4 py-2 text-sm text-gray-300 hover:bg-white/10 transition-colors"
-                    >
-                      Change Theme
-                    </button>
-                    {activeProfile.type === "individual" && (
+                <div className="relative">
+                  <button
+                    onClick={() => setShowDropdown(!showDropdown)}
+                    className="p-2 hover:bg-white/10 rounded-full transition-colors"
+                  >
+                    <svg className="h-6 w-6 text-white" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                    </svg>
+                  </button>
+
+                  {showDropdown && (
+                    <div className="absolute right-0 top-full mt-2 w-48 bg-gray-800/95 backdrop-blur-sm rounded-lg shadow-lg py-1 z-50">
                       <button
                         onClick={() => {
-                          setShowInfoModal(true)
+                          setShowThemeModal(true)
                           setShowDropdown(false)
                         }}
                         className="w-full text-left block px-4 py-2 text-sm text-gray-300 hover:bg-white/10 transition-colors"
                       >
-                        Info
+                        Change Theme
                       </button>
-                    )}
-                    {activeProfile.type === "group" && (
-                      <button
-                        onClick={() => {
-                          setShowGroupManagement(true)
-                          setShowDropdown(false)
-                        }}
-                        className="w-full text-left block px-4 py-2 text-sm text-gray-300 hover:bg-white/10 transition-colors"
-                      >
-                        Manage Group
-                      </button>
-                    )}
-                  </div>
-                )}
+                      {activeProfile.type === "individual" && (
+                        <button
+                          onClick={() => {
+                            setShowInfoModal(true)
+                            setShowDropdown(false)
+                          }}
+                          className="w-full text-left block px-4 py-2 text-sm text-gray-300 hover:bg-white/10 transition-colors"
+                        >
+                          Info
+                        </button>
+                      )}
+                      {activeProfile.type === "group" && (
+                        <button
+                          onClick={() => {
+                            setShowGroupManagement(true)
+                            setShowDropdown(false)
+                          }}
+                          className="w-full text-left block px-4 py-2 text-sm text-gray-300 hover:bg-white/10 transition-colors"
+                        >
+                          Manage Group
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
 
           {/* Mobile Messages Area */}
-          <div className="flex-1 overflow-y-auto px-4 py-2 space-y-3">
+          <div className="mobile-messages px-4 py-2 space-y-3 messages-container">
             {activeProfile.isNew && (
               <div className="text-center p-4 text-gray-400 text-sm">
                 <img
@@ -738,89 +747,97 @@ export default function ChatPage() {
           </div>
 
           {/* Mobile Input Area - Instagram Style */}
-          <div className="px-4 py-3 bg-black/90 backdrop-blur-sm border-t border-white/10 safe-area-bottom">
-            <div className="flex items-center bg-white/10 backdrop-blur-sm rounded-full px-3 py-2 border border-white/10">
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                className="p-2 text-gray-400 hover:text-gray-300 transition-colors flex-shrink-0"
-              >
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                </svg>
-              </button>
+          <div className="mobile-input bg-black/90 backdrop-blur-sm border-t border-white/10">
+            <div className="safe-area-bottom px-4 py-3">
+              <div className="flex items-center bg-white/10 backdrop-blur-sm rounded-full px-3 py-2 border border-white/10">
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="p-2 text-gray-400 hover:text-gray-300 transition-colors flex-shrink-0"
+                >
+                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
+                  </svg>
+                </button>
 
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault()
-                  sendMessage(inputValue)
-                }}
-                className="flex items-center flex-1"
-              >
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault()
+                    sendMessage(inputValue)
+                  }}
+                  className="flex items-center flex-1"
+                >
+                  <input
+                    type="text"
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    placeholder="Message..."
+                    className="flex-1 bg-transparent text-white focus:outline-none px-2 py-2 text-base placeholder-gray-300"
+                    style={{ fontSize: "16px" }}
+                  />
+
+                  {inputValue.trim() ? (
+                    <button
+                      type="submit"
+                      className="p-2 text-blue-400 hover:text-blue-300 transition-colors flex-shrink-0"
+                    >
+                      <svg className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
+                      </svg>
+                    </button>
+                  ) : (
+                    <div className="flex items-center space-x-1">
+                      <button
+                        onClick={handleVoiceRecord}
+                        className={`p-2 transition-colors flex-shrink-0 ${
+                          isRecording ? "text-red-400 animate-pulse" : "text-gray-400 hover:text-gray-300"
+                        }`}
+                      >
+                        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"
+                          />
+                        </svg>
+                      </button>
+
+                      <button
+                        onClick={() => sendMessage("❤️")}
+                        className="p-2 text-gray-400 hover:text-red-400 transition-colors flex-shrink-0"
+                      >
+                        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+                  )}
+                </form>
+
                 <input
-                  type="text"
-                  value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
-                  placeholder="Message..."
-                  className="flex-1 bg-transparent text-white focus:outline-none px-2 py-2 text-base placeholder-gray-300"
-                  style={{ fontSize: "16px" }}
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="hidden"
                 />
-
-                {inputValue.trim() ? (
-                  <button
-                    type="submit"
-                    className="p-2 text-blue-400 hover:text-blue-300 transition-colors flex-shrink-0"
-                  >
-                    <svg className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
-                      <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
-                    </svg>
-                  </button>
-                ) : (
-                  <div className="flex items-center space-x-1">
-                    <button
-                      onClick={handleVoiceRecord}
-                      className={`p-2 transition-colors flex-shrink-0 ${
-                        isRecording ? "text-red-400 animate-pulse" : "text-gray-400 hover:text-gray-300"
-                      }`}
-                    >
-                      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"
-                        />
-                      </svg>
-                    </button>
-
-                    <button
-                      onClick={() => sendMessage("❤️")}
-                      className="p-2 text-gray-400 hover:text-red-400 transition-colors flex-shrink-0"
-                    >
-                      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                        />
-                      </svg>
-                    </button>
-                  </div>
-                )}
-              </form>
-
-              <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+              </div>
             </div>
           </div>
         </div>
