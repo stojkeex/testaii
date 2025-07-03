@@ -472,13 +472,13 @@ export default function ChatPage() {
   // Mobile Layout
   if (isMobile) {
     return (
-      <div className="mobile-container bg-black">
+      <div className="mobile-container bg-black no-gap">
         {/* Mobile Inbox Overlay */}
         {showInbox && (
-          <div className="fixed inset-0 bg-black z-50 mobile-container">
+          <div className="fixed inset-0 bg-black z-50 mobile-container no-gap">
             {/* Mobile Inbox Header */}
-            <div className="mobile-header flex items-center justify-between px-4 bg-black border-b border-gray-800">
-              <div className="safe-area-top flex items-center justify-between w-full py-3">
+            <div className="mobile-header bg-black border-b border-gray-800 no-gap">
+              <div className="flex items-center justify-between px-4 py-3 h-full">
                 <button
                   onClick={() => setShowInbox(false)}
                   className="p-2 hover:bg-gray-800 rounded-full transition-colors"
@@ -522,7 +522,7 @@ export default function ChatPage() {
             </div>
 
             {/* Mobile Chat List */}
-            <div className="mobile-messages bg-black">
+            <div className="mobile-messages bg-black no-gap">
               {allProfiles.map((profile) => {
                 const history = getChatHistory(profile.id)
                 const lastMessage = history[history.length - 1]
@@ -561,10 +561,10 @@ export default function ChatPage() {
         )}
 
         {/* Mobile Chat Interface */}
-        <div className={`mobile-container ${activeProfile.theme || "bg-animated-blue-purple"}`}>
+        <div className={`mobile-container no-gap ${activeProfile.theme || "bg-animated-blue-purple"}`}>
           {/* Mobile Header - Instagram Style */}
-          <div className="mobile-header bg-black/90 backdrop-blur-sm border-b border-white/10">
-            <div className="safe-area-top flex items-center justify-between px-4 py-3">
+          <div className="mobile-header bg-black/90 backdrop-blur-sm border-b border-white/10 no-gap">
+            <div className="flex items-center justify-between px-4 py-3 h-full">
               <div className="flex items-center flex-1 min-w-0">
                 <button
                   onClick={() => setShowInbox(true)}
@@ -668,7 +668,7 @@ export default function ChatPage() {
           </div>
 
           {/* Mobile Messages Area */}
-          <div className="mobile-messages px-4 py-2 space-y-3 messages-container">
+          <div className="mobile-messages px-4 py-2 space-y-3 messages-container no-gap">
             {activeProfile.isNew && (
               <div className="text-center p-4 text-gray-400 text-sm">
                 <img
@@ -746,9 +746,9 @@ export default function ChatPage() {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Mobile Input Area - Instagram Style */}
-          <div className="mobile-input bg-black/90 backdrop-blur-sm border-t border-white/10">
-            <div className="safe-area-bottom px-4 py-3">
+          {/* Mobile Input Area - EXACT bottom positioning */}
+          <div className="mobile-input bg-black/90 backdrop-blur-sm border-t border-white/10 no-gap full-width">
+            <div className="mobile-input-container">
               <div className="flex items-center bg-white/10 backdrop-blur-sm rounded-full px-3 py-2 border border-white/10">
                 <button
                   onClick={() => fileInputRef.current?.click()}
