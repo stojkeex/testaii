@@ -2,33 +2,26 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --vh: 1vh;
-}
-
 * {
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
+  margin: 0;
+  padding: 0;
 }
 
 html,
 body {
   height: 100vh;
-  height: 100dvh; /* Dynamic viewport height */
+  height: 100dvh;
+  height: -webkit-fill-available;
   overflow: hidden;
   font-family: "Inter", sans-serif;
-  margin: 0;
-  padding: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-/* Mobile viewport fix */
-@supports (-webkit-touch-callout: none) {
-  html,
-  body {
-    height: -webkit-fill-available;
-  }
+  position: fixed;
+  width: 100%;
+  top: 0;
+  left: 0;
 }
 
 /* Prevent zoom on iOS */
@@ -37,25 +30,58 @@ input[type="email"],
 input[type="password"],
 textarea {
   font-size: 16px !important;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
-/* Safe area support for notched devices */
-.safe-area-top {
-  padding-top: max(12px, env(safe-area-inset-top));
-}
-
-.safe-area-bottom {
-  padding-bottom: max(12px, env(safe-area-inset-bottom));
-}
-
-/* Mobile container fix */
+/* Mobile container - EXACT fit */
 .mobile-container {
   height: 100vh;
   height: 100dvh;
   height: -webkit-fill-available;
+  width: 100vw;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+/* Mobile Header - EXACT positioning */
+.mobile-header {
+  height: 60px;
+  min-height: 60px;
+  flex-shrink: 0;
+  padding-top: env(safe-area-inset-top);
+}
+
+/* Mobile Messages - Fill remaining space */
+.mobile-messages {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* Mobile Input - EXACT bottom positioning */
+.mobile-input {
+  height: 80px;
+  min-height: 80px;
+  flex-shrink: 0;
+  padding-bottom: env(safe-area-inset-bottom);
+  position: relative;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+/* Remove any default margins/padding that could cause gaps */
+.mobile-input-container {
+  margin: 0;
+  padding: 16px;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom));
 }
 
 /* Animated Gradient Backgrounds */
@@ -184,28 +210,6 @@ textarea {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Mobile Header Height */
-.mobile-header {
-  height: calc(60px + env(safe-area-inset-top));
-  min-height: calc(60px + env(safe-area-inset-top));
-  flex-shrink: 0;
-}
-
-/* Mobile Messages Container */
-.mobile-messages {
-  flex: 1;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
-}
-
-/* Mobile Input Container */
-.mobile-input {
-  height: calc(80px + env(safe-area-inset-bottom));
-  min-height: calc(80px + env(safe-area-inset-bottom));
-  flex-shrink: 0;
-}
-
 /* Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
@@ -238,27 +242,25 @@ textarea {
     left: 0;
   }
 
+  /* Prevent bounce scrolling */
+  body {
+    overscroll-behavior: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
   /* Touch improvements */
   button,
   input,
   textarea {
     -webkit-appearance: none;
+    appearance: none;
     border-radius: 0;
   }
 
-  /* Prevent text selection on mobile */
-  .no-select {
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-  }
-
-  /* Prevent bounce scrolling */
-  body {
-    overscroll-behavior: none;
+  /* Better touch targets */
+  button {
+    min-height: 44px;
+    min-width: 44px;
   }
 }
 
@@ -268,17 +270,14 @@ textarea {
   -webkit-overflow-scrolling: touch;
 }
 
-/* Better touch targets on mobile */
-@media (max-width: 767px) {
-  button {
-    min-height: 44px;
-    min-width: 44px;
-  }
+/* Remove any gaps or margins */
+.no-gap {
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
-/* Fix for iOS Safari address bar */
-@supports (-webkit-touch-callout: none) {
-  .mobile-container {
-    height: -webkit-fill-available;
-  }
+/* Ensure full width */
+.full-width {
+  width: 100% !important;
+  max-width: 100% !important;
 }
