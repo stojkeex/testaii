@@ -54,10 +54,8 @@ export default function ChatPage() {
   useEffect(() => {
     if (activeProfile) {
       loadChatHistory()
-      // Only send welcome message for NEW individual profiles
       if (messages.length === 0 && activeProfile.type === "individual" && activeProfile.isNew) {
         sendWelcomeMessage()
-        // Remove the isNew flag after welcome message
         const updatedProfile = { ...activeProfile, isNew: false }
         setActiveProfile(updatedProfile)
         const updatedProfiles = allProfiles.map((p) => (p.id === activeProfile.id ? updatedProfile : p))
@@ -94,7 +92,6 @@ export default function ChatPage() {
       const parsedProfiles = JSON.parse(profiles)
       setAllProfiles(parsedProfiles)
 
-      // Set active profile
       let activeProf = null
       if (activeChatId) {
         activeProf = parsedProfiles.find((p) => p.id === activeChatId)
@@ -129,12 +126,10 @@ export default function ChatPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }
 
-  // Calculate typing delay based on message length
   const calculateTypingDelay = (messageLength) => {
-    const baseDelay = 1000 // 1 second minimum
-    const charDelay = 50 // 50ms per character
-    const maxDelay = 5000 // 5 seconds maximum
-
+    const baseDelay = 1000
+    const charDelay = 50
+    const maxDelay = 5000
     return Math.min(baseDelay + messageLength * charDelay, maxDelay)
   }
 
@@ -180,7 +175,6 @@ export default function ChatPage() {
 
       const data = await response.json()
 
-      // Check if API key is missing
       if (data.error === "MISSING_API_KEY") {
         setIsTyping(false)
         setShowApiKeySetup(true)
@@ -208,7 +202,6 @@ export default function ChatPage() {
       setIsTyping(false)
       console.error("Chat error:", error)
 
-      // Add error message to chat
       const errorMessage = {
         role: "model",
         content: {
@@ -227,7 +220,6 @@ export default function ChatPage() {
     const availableMembers = activeProfile.members ?? []
     if (!availableMembers.length) return
 
-    // Choose ONE member only
     const respondingMember = availableMembers[Math.floor(Math.random() * availableMembers.length)]
 
     setIsTyping(true)
@@ -245,7 +237,6 @@ export default function ChatPage() {
       })
       const data = await res.json()
 
-      // Check if API key is missing
       if (data.error === "MISSING_API_KEY") {
         setIsTyping(false)
         setShowApiKeySetup(true)
@@ -270,19 +261,15 @@ export default function ChatPage() {
     }
   }
 
-  // Start continuous group conversation
   const startGroupConversation = () => {
     if (activeProfile.type !== "group" || !activeProfile.members) return
 
-    // Clear any existing interval
     if (groupConversationRef.current) {
       clearInterval(groupConversationRef.current)
     }
 
-    // Only start auto conversation if there are no messages or very few messages
-    if (messages.length > 25) return // stop when chat is already long
+    if (messages.length > 25) return
 
-    // Start new conversation every 30-60 seconds
     groupConversationRef.current = setInterval(
       async () => {
         if (activeProfile.members.length < 2) return
@@ -304,7 +291,6 @@ export default function ChatPage() {
 
           const data = await response.json()
 
-          // Check if API key is missing
           if (data.error === "MISSING_API_KEY") {
             setShowApiKeySetup(true)
             return
@@ -326,7 +312,6 @@ export default function ChatPage() {
             setMessages(updatedMessages)
             saveChatHistory(updatedMessages)
 
-            // Trigger responses from other members
             setTimeout(
               () => {
                 handleGroupResponse(data.response, updatedMessages)
@@ -339,7 +324,7 @@ export default function ChatPage() {
         }
       },
       Math.random() * 30000 + 90000,
-    ) // 90-120 s
+    )
   }
 
   useEffect(() => {
@@ -369,7 +354,6 @@ export default function ChatPage() {
 
       const data = await response.json()
 
-      // Check if API key is missing
       if (data.error === "MISSING_API_KEY") {
         setIsTyping(false)
         setShowApiKeySetup(true)
@@ -402,7 +386,6 @@ export default function ChatPage() {
   const handleChatSelect = (chatId) => {
     const profile = allProfiles.find((p) => p.id === chatId)
     if (profile) {
-      // Clear group conversation interval when switching chats
       if (groupConversationRef.current) {
         clearInterval(groupConversationRef.current)
       }
@@ -443,7 +426,6 @@ export default function ChatPage() {
   const handleImageUpload = (event) => {
     const file = event.target.files[0]
     if (file) {
-      // For now, just show a placeholder message
       const imageMessage = {
         role: "user",
         content: { type: "image", content: `📷 Image: ${file.name}` },
@@ -456,9 +438,7 @@ export default function ChatPage() {
 
   const handleVoiceRecord = () => {
     if (isRecording) {
-      // Stop recording
       setIsRecording(false)
-      // For now, just show a placeholder message
       const voiceMessage = {
         role: "user",
         content: { type: "voice", content: "🎤 Voice message" },
@@ -467,9 +447,7 @@ export default function ChatPage() {
       setMessages(newMessages)
       saveChatHistory(newMessages)
     } else {
-      // Start recording
       setIsRecording(true)
-      // Auto-stop after 5 seconds for demo
       setTimeout(() => {
         setIsRecording(false)
         const voiceMessage = {
@@ -491,90 +469,411 @@ export default function ChatPage() {
     )
   }
 
-  return (
-    <div className="h-screen w-full bg-black flex overflow-hidden">
-      {/* Mobile Inbox Overlay */}
-      {isMobile && showInbox && (
-        <div className="fixed inset-0 bg-black z-50 flex flex-col">
-          {/* Mobile Inbox Header */}
-          <div className="flex items-center justify-between p-4 border-b border-gray-800 bg-black">
-            <button
-              onClick={() => setShowInbox(false)}
-              className="p-2 hover:bg-gray-800 rounded-full transition-colors"
-            >
-              <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-            <h1 className="text-xl font-bold text-white">{userProfile?.name}</h1>
-            <div className="flex space-x-2">
-              <Link
-                href="/create-group"
+  // Mobile Layout
+  if (isMobile) {
+    return (
+      <div className="h-screen w-full bg-black flex flex-col overflow-hidden">
+        {/* Mobile Inbox Overlay */}
+        {showInbox && (
+          <div className="fixed inset-0 bg-black z-50 flex flex-col">
+            {/* Mobile Inbox Header */}
+            <div className="flex items-center justify-between p-4 border-b border-gray-800 bg-black safe-area-top">
+              <button
+                onClick={() => setShowInbox(false)}
                 className="p-2 hover:bg-gray-800 rounded-full transition-colors"
-                title="New Group"
               >
-                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
-              </Link>
-              <Link
-                href="/gender-selection"
-                className="p-2 hover:bg-gray-800 rounded-full transition-colors"
-                title="New Chat"
+              </button>
+              <h1 className="text-xl font-bold text-white">{userProfile?.name}</h1>
+              <div className="flex space-x-2">
+                <Link
+                  href="/create-group"
+                  className="p-2 hover:bg-gray-800 rounded-full transition-colors"
+                  title="New Group"
+                >
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                </Link>
+                <Link
+                  href="/gender-selection"
+                  className="p-2 hover:bg-gray-800 rounded-full transition-colors"
+                  title="New Chat"
+                >
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                    />
+                  </svg>
+                </Link>
+              </div>
+            </div>
+
+            {/* Mobile Chat List */}
+            <div className="flex-1 overflow-y-auto bg-black">
+              {allProfiles.map((profile) => {
+                const history = getChatHistory(profile.id)
+                const lastMessage = history[history.length - 1]
+                const snippet = lastMessage
+                  ? lastMessage.content.type === "text"
+                    ? lastMessage.content.content
+                    : "Sent an attachment"
+                  : "No messages yet."
+
+                return (
+                  <div
+                    key={profile.id}
+                    onClick={() => handleChatSelect(profile.id)}
+                    className="flex items-center p-4 active:bg-gray-900 transition-colors border-b border-gray-900"
+                  >
+                    <img
+                      src={profile.img || `https://placehold.co/56x56/667eea/ffffff?text=${profile.name.charAt(0)}`}
+                      alt={profile.name}
+                      className="w-14 h-14 rounded-full object-cover mr-4 flex-shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-1">
+                        <h3 className="text-white font-semibold truncate">
+                          {profile.name}
+                          {profile.type === "group" ? " (Group)" : ""}
+                        </h3>
+                        <span className="text-xs text-gray-500">now</span>
+                      </div>
+                      <p className="text-gray-400 text-sm truncate">{snippet}</p>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Mobile Chat Interface */}
+        <div className={`flex-1 flex flex-col ${activeProfile.theme || "bg-animated-blue-purple"}`}>
+          {/* Mobile Header - Instagram Style */}
+          <div className="flex items-center justify-between px-4 py-3 bg-black/90 backdrop-blur-sm border-b border-white/10 safe-area-top">
+            <div className="flex items-center flex-1 min-w-0">
+              <button
+                onClick={() => setShowInbox(true)}
+                className="p-2 mr-2 hover:bg-white/10 rounded-full transition-colors flex-shrink-0"
               >
-                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <img
+                src={
+                  activeProfile.img || `https://placehold.co/40x40/667eea/ffffff?text=${activeProfile.name.charAt(0)}`
+                }
+                alt={activeProfile.name}
+                className="w-10 h-10 rounded-full object-cover mr-3 flex-shrink-0"
+              />
+              <div className="flex-1 min-w-0">
+                <h2 className="text-white font-semibold text-lg truncate">{activeProfile.name}</h2>
+                {activeProfile.type === "individual" && (
+                  <p className="text-gray-300 text-sm flex items-center">
+                    <span className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span>
+                    Active now
+                  </p>
+                )}
+                {activeProfile.type === "group" && (
+                  <p className="text-gray-300 text-sm">{activeProfile.members?.length || 0} members</p>
+                )}
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <button className="p-2 hover:bg-white/10 rounded-full transition-colors">
+                <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth="2"
-                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
                   />
                 </svg>
-              </Link>
+              </button>
+              <button className="p-2 hover:bg-white/10 rounded-full transition-colors">
+                <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 012 2z"
+                  />
+                </svg>
+              </button>
+
+              <div className="relative">
+                <button
+                  onClick={() => setShowDropdown(!showDropdown)}
+                  className="p-2 hover:bg-white/10 rounded-full transition-colors"
+                >
+                  <svg className="h-6 w-6 text-white" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                  </svg>
+                </button>
+
+                {showDropdown && (
+                  <div className="absolute right-0 top-full mt-2 w-48 bg-gray-800/95 backdrop-blur-sm rounded-lg shadow-lg py-1 z-50">
+                    <button
+                      onClick={() => {
+                        setShowThemeModal(true)
+                        setShowDropdown(false)
+                      }}
+                      className="w-full text-left block px-4 py-2 text-sm text-gray-300 hover:bg-white/10 transition-colors"
+                    >
+                      Change Theme
+                    </button>
+                    {activeProfile.type === "individual" && (
+                      <button
+                        onClick={() => {
+                          setShowInfoModal(true)
+                          setShowDropdown(false)
+                        }}
+                        className="w-full text-left block px-4 py-2 text-sm text-gray-300 hover:bg-white/10 transition-colors"
+                      >
+                        Info
+                      </button>
+                    )}
+                    {activeProfile.type === "group" && (
+                      <button
+                        onClick={() => {
+                          setShowGroupManagement(true)
+                          setShowDropdown(false)
+                        }}
+                        className="w-full text-left block px-4 py-2 text-sm text-gray-300 hover:bg-white/10 transition-colors"
+                      >
+                        Manage Group
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
-          {/* Mobile Chat List */}
-          <div className="flex-1 overflow-y-auto bg-black">
-            {allProfiles.map((profile) => {
-              const history = getChatHistory(profile.id)
-              const lastMessage = history[history.length - 1]
-              const snippet = lastMessage
-                ? lastMessage.content.type === "text"
-                  ? lastMessage.content.content
-                  : "Sent an attachment"
-                : "No messages yet."
+          {/* Mobile Messages Area */}
+          <div className="flex-1 overflow-y-auto px-4 py-2 space-y-3">
+            {activeProfile.isNew && (
+              <div className="text-center p-4 text-gray-400 text-sm">
+                <img
+                  src={
+                    activeProfile.img || `https://placehold.co/96x96/667eea/ffffff?text=${activeProfile.name.charAt(0)}`
+                  }
+                  alt={activeProfile.name}
+                  className="w-24 h-24 rounded-full mx-auto mb-4 border-2 border-gray-700"
+                />
+                <h3 className="text-xl font-bold text-white">{activeProfile.name}</h3>
+                <p>You just created this {activeProfile.type === "group" ? "group" : "companion"}.</p>
+              </div>
+            )}
 
-              return (
-                <div
-                  key={profile.id}
-                  onClick={() => handleChatSelect(profile.id)}
-                  className="flex items-center p-4 active:bg-gray-900 transition-colors border-b border-gray-900"
-                >
+            {messages.map((message, index) => (
+              <div
+                key={index}
+                className={`flex items-end space-x-2 ${message.role === "user" ? "justify-end" : "justify-start"}`}
+              >
+                {message.role !== "user" && (
                   <img
-                    src={profile.img || `https://placehold.co/56x56/667eea/ffffff?text=${profile.name.charAt(0)}`}
-                    alt={profile.name}
-                    className="w-14 h-14 rounded-full object-cover mr-4 flex-shrink-0"
+                    src={
+                      activeProfile.type === "group" && message.content.senderName
+                        ? activeProfile.members?.find((m) => m.name === message.content.senderName)?.img ||
+                          `https://placehold.co/32x32/667eea/ffffff?text=${message.content.senderName.charAt(0)}`
+                        : activeProfile.img ||
+                          `https://placehold.co/32x32/667eea/ffffff?text=${activeProfile.name.charAt(0)}`
+                    }
+                    alt={message.content.senderName || activeProfile.name}
+                    className="w-8 h-8 rounded-full object-cover flex-shrink-0"
                   />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-1">
-                      <h3 className="text-white font-semibold truncate">
-                        {profile.name}
-                        {profile.type === "group" ? " (Group)" : ""}
-                      </h3>
-                      <span className="text-xs text-gray-500">now</span>
-                    </div>
-                    <p className="text-gray-400 text-sm truncate">{snippet}</p>
+                )}
+                <div className="flex flex-col">
+                  {message.role !== "user" && activeProfile.type === "group" && message.content.senderName && (
+                    <span className="text-xs text-gray-400 mb-1 ml-2">{message.content.senderName}</span>
+                  )}
+                  <div
+                    className={`max-w-[280px] px-4 py-2 rounded-2xl ${
+                      message.role === "user"
+                        ? "bg-gradient-to-r from-purple-500 to-blue-500 text-white"
+                        : "bg-gray-800 text-white"
+                    }`}
+                  >
+                    {message.content.content}
                   </div>
                 </div>
-              )
-            })}
+              </div>
+            ))}
+
+            {isTyping && (
+              <div className="flex items-end space-x-2 justify-start">
+                <img
+                  src={
+                    activeProfile.img || `https://placehold.co/32x32/667eea/ffffff?text=${activeProfile.name.charAt(0)}`
+                  }
+                  alt={activeProfile.name}
+                  className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+                />
+                <div className="bg-gray-800 px-4 py-2 rounded-2xl">
+                  <div className="flex space-x-1">
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                    <div
+                      className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                      style={{ animationDelay: "0.1s" }}
+                    ></div>
+                    <div
+                      className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                      style={{ animationDelay: "0.2s" }}
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* Mobile Input Area - Instagram Style */}
+          <div className="px-4 py-3 bg-black/90 backdrop-blur-sm border-t border-white/10 safe-area-bottom">
+            <div className="flex items-center bg-white/10 backdrop-blur-sm rounded-full px-3 py-2 border border-white/10">
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="p-2 text-gray-400 hover:text-gray-300 transition-colors flex-shrink-0"
+              >
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                </svg>
+              </button>
+
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  sendMessage(inputValue)
+                }}
+                className="flex items-center flex-1"
+              >
+                <input
+                  type="text"
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  placeholder="Message..."
+                  className="flex-1 bg-transparent text-white focus:outline-none px-2 py-2 text-base placeholder-gray-300"
+                  style={{ fontSize: "16px" }}
+                />
+
+                {inputValue.trim() ? (
+                  <button
+                    type="submit"
+                    className="p-2 text-blue-400 hover:text-blue-300 transition-colors flex-shrink-0"
+                  >
+                    <svg className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
+                    </svg>
+                  </button>
+                ) : (
+                  <div className="flex items-center space-x-1">
+                    <button
+                      onClick={handleVoiceRecord}
+                      className={`p-2 transition-colors flex-shrink-0 ${
+                        isRecording ? "text-red-400 animate-pulse" : "text-gray-400 hover:text-gray-300"
+                      }`}
+                    >
+                      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"
+                        />
+                      </svg>
+                    </button>
+
+                    <button
+                      onClick={() => sendMessage("❤️")}
+                      className="p-2 text-gray-400 hover:text-red-400 transition-colors flex-shrink-0"
+                    >
+                      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                )}
+              </form>
+
+              <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+            </div>
           </div>
         </div>
-      )}
 
+        {/* Mobile Modals */}
+        {showThemeModal && (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+            <div className="bg-gray-900/95 backdrop-blur-sm rounded-2xl p-6 w-full max-w-sm border border-white/10">
+              <h2 className="text-xl font-bold text-center mb-6 text-white">Choose Theme</h2>
+              <div className="grid grid-cols-2 gap-3 mb-4">
+                {themes.map((theme) => (
+                  <button
+                    key={theme.class}
+                    onClick={() => handleThemeChange(theme.class)}
+                    className={`h-16 flex items-center justify-center text-white font-semibold text-sm relative ${theme.class} rounded-lg transition-transform hover:scale-105 ${
+                      activeProfile.theme === theme.class ? "ring-2 ring-white" : ""
+                    }`}
+                  >
+                    {theme.name}
+                  </button>
+                ))}
+              </div>
+              <button
+                onClick={() => setShowThemeModal(false)}
+                className="mt-6 w-full btn-primary py-2 px-4 rounded-lg font-semibold"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        )}
+
+        {showInfoModal && <InfoModal profile={activeProfile} onClose={() => setShowInfoModal(false)} />}
+
+        {showGroupManagement && (
+          <GroupManagementModal
+            group={activeProfile}
+            allProfiles={allProfiles}
+            onClose={() => setShowGroupManagement(false)}
+            onUpdateGroup={handleUpdateGroup}
+          />
+        )}
+
+        {showApiKeySetup && <ApiKeySetup onClose={() => setShowApiKeySetup(false)} />}
+      </div>
+    )
+  }
+
+  // Desktop Layout
+  return (
+    <div className="h-screen w-full bg-black flex overflow-hidden">
       {/* Desktop Inbox Panel */}
-      {!isMobile && allProfiles.length > 0 && (
+      {allProfiles.length > 0 && (
         <div className="w-80 flex-shrink-0">
           <div className="h-full bg-black border-r border-gray-800 flex flex-col">
             <div className="p-4 border-b border-gray-800 flex justify-between items-center">
@@ -644,25 +943,15 @@ export default function ChatPage() {
         </div>
       )}
 
-      {/* Main Chat Area */}
+      {/* Desktop Chat Area */}
       <div className={`flex-1 flex flex-col ${activeProfile.theme || "bg-animated-blue-purple"}`}>
-        {/* Header - Instagram Style */}
-        <div className="flex items-center justify-between px-4 py-3 bg-black/90 backdrop-blur-sm border-b border-white/10">
+        {/* Desktop Header */}
+        <div className="flex items-center justify-between p-4 bg-black/90 backdrop-blur-sm border-b border-white/10">
           <div className="flex items-center flex-1 min-w-0">
-            {isMobile && (
-              <button
-                onClick={() => setShowInbox(true)}
-                className="p-2 mr-2 hover:bg-white/10 rounded-full transition-colors flex-shrink-0"
-              >
-                <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-            )}
             <img
               src={activeProfile.img || `https://placehold.co/40x40/667eea/ffffff?text=${activeProfile.name.charAt(0)}`}
               alt={activeProfile.name}
-              className="w-10 h-10 rounded-full object-cover mr-3 flex-shrink-0"
+              className="w-8 h-8 rounded-full object-cover mr-3 flex-shrink-0"
             />
             <div className="flex-1 min-w-0">
               <h2 className="text-white font-semibold text-lg truncate">{activeProfile.name}</h2>
@@ -678,86 +967,56 @@ export default function ChatPage() {
             </div>
           </div>
 
-          <div className="flex items-center space-x-2">
-            {isMobile && (
-              <>
-                <button className="p-2 hover:bg-white/10 rounded-full transition-colors">
-                  <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                    />
-                  </svg>
-                </button>
-                <button className="p-2 hover:bg-white/10 rounded-full transition-colors">
-                  <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 012 2z"
-                    />
-                  </svg>
-                </button>
-              </>
-            )}
+          <div className="relative">
+            <button
+              onClick={() => setShowDropdown(!showDropdown)}
+              className="p-2 hover:bg-white/10 rounded-full transition-colors"
+            >
+              <svg className="h-6 w-6 text-white" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+              </svg>
+            </button>
 
-            <div className="relative">
-              <button
-                onClick={() => setShowDropdown(!showDropdown)}
-                className="p-2 hover:bg-white/10 rounded-full transition-colors"
-              >
-                <svg className="h-6 w-6 text-white" viewBox="0 0 20 20" fill="currentColor">
-                  <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
-                </svg>
-              </button>
-
-              {showDropdown && (
-                <div className="absolute right-0 top-full mt-2 w-48 bg-gray-800/95 backdrop-blur-sm rounded-lg shadow-lg py-1 z-50">
+            {showDropdown && (
+              <div className="absolute right-0 top-full mt-2 w-48 bg-gray-800/95 backdrop-blur-sm rounded-lg shadow-lg py-1 z-50">
+                <button
+                  onClick={() => {
+                    setShowThemeModal(true)
+                    setShowDropdown(false)
+                  }}
+                  className="w-full text-left block px-4 py-2 text-sm text-gray-300 hover:bg-white/10 transition-colors"
+                >
+                  Change Theme
+                </button>
+                {activeProfile.type === "individual" && (
                   <button
                     onClick={() => {
-                      setShowThemeModal(true)
+                      setShowInfoModal(true)
                       setShowDropdown(false)
                     }}
                     className="w-full text-left block px-4 py-2 text-sm text-gray-300 hover:bg-white/10 transition-colors"
                   >
-                    Change Theme
+                    Info
                   </button>
-                  {activeProfile.type === "individual" && (
-                    <button
-                      onClick={() => {
-                        setShowInfoModal(true)
-                        setShowDropdown(false)
-                      }}
-                      className="w-full text-left block px-4 py-2 text-sm text-gray-300 hover:bg-white/10 transition-colors"
-                    >
-                      Info
-                    </button>
-                  )}
-                  {activeProfile.type === "group" && (
-                    <button
-                      onClick={() => {
-                        setShowGroupManagement(true)
-                        setShowDropdown(false)
-                      }}
-                      className="w-full text-left block px-4 py-2 text-sm text-gray-300 hover:bg-white/10 transition-colors"
-                    >
-                      Manage Group
-                    </button>
-                  )}
-                </div>
-              )}
-            </div>
+                )}
+                {activeProfile.type === "group" && (
+                  <button
+                    onClick={() => {
+                      setShowGroupManagement(true)
+                      setShowDropdown(false)
+                    }}
+                    className="w-full text-left block px-4 py-2 text-sm text-gray-300 hover:bg-white/10 transition-colors"
+                  >
+                    Manage Group
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Messages Area - Mobile Optimized */}
-        <div
-          className="flex-1 overflow-y-auto px-4 py-2 space-y-3"
-          style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
-        >
+        {/* Desktop Messages */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-3">
           {activeProfile.isNew && (
             <div className="text-center p-4 text-gray-400 text-sm">
               <img
@@ -787,7 +1046,7 @@ export default function ChatPage() {
                         `https://placehold.co/32x32/667eea/ffffff?text=${activeProfile.name.charAt(0)}`
                   }
                   alt={message.content.senderName || activeProfile.name}
-                  className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+                  className="w-7 h-7 rounded-full object-cover flex-shrink-0"
                 />
               )}
               <div className="flex flex-col">
@@ -795,7 +1054,7 @@ export default function ChatPage() {
                   <span className="text-xs text-gray-400 mb-1 ml-2">{message.content.senderName}</span>
                 )}
                 <div
-                  className={`max-w-[280px] px-4 py-2 rounded-2xl ${
+                  className={`max-w-xs lg:max-w-md px-4 py-2 rounded-2xl ${
                     message.role === "user"
                       ? "bg-gradient-to-r from-purple-500 to-blue-500 text-white"
                       : "bg-gray-800 text-white"
@@ -814,7 +1073,7 @@ export default function ChatPage() {
                   activeProfile.img || `https://placehold.co/32x32/667eea/ffffff?text=${activeProfile.name.charAt(0)}`
                 }
                 alt={activeProfile.name}
-                className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+                className="w-7 h-7 rounded-full object-cover flex-shrink-0"
               />
               <div className="bg-gray-800 px-4 py-2 rounded-2xl">
                 <div className="flex space-x-1">
@@ -835,140 +1094,73 @@ export default function ChatPage() {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Input Area - Instagram Style */}
-        <div
-          className="px-4 py-3 bg-black/90 backdrop-blur-sm border-t border-white/10"
-          style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 12px)" }}
-        >
-          <div className="flex items-center bg-white/10 backdrop-blur-sm rounded-full px-3 py-2 border border-white/10">
-            {/* Camera Icon */}
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              className="p-2 text-gray-400 hover:text-gray-300 transition-colors flex-shrink-0"
-            >
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
-                />
-              </svg>
-            </button>
+        {/* Desktop Input */}
+        <div className="p-4 bg-black/90 backdrop-blur-sm border-t border-white/10">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault()
+              sendMessage(inputValue)
+            }}
+            className="flex items-center bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 border border-white/10"
+          >
+            <input
+              type="text"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              placeholder="Message..."
+              className="flex-1 bg-transparent text-white focus:outline-none px-3 py-2 placeholder-gray-300"
+            />
+            {inputValue.trim() && (
+              <button type="submit" className="p-2 text-blue-400 hover:text-blue-300 transition-colors">
+                <svg className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
+                </svg>
+              </button>
+            )}
+          </form>
+        </div>
 
-            {/* Text Input */}
-            <form
-              onSubmit={(e) => {
-                e.preventDefault()
-                sendMessage(inputValue)
-              }}
-              className="flex items-center flex-1"
-            >
-              <input
-                type="text"
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                placeholder="Message..."
-                className="flex-1 bg-transparent text-white focus:outline-none px-2 py-2 text-base placeholder-gray-300"
-                style={{ fontSize: "16px" }} // Prevents zoom on iOS
-              />
-
-              {/* Send Button or Voice/Like Icons */}
-              {inputValue.trim() ? (
-                <button type="submit" className="p-2 text-blue-400 hover:text-blue-300 transition-colors flex-shrink-0">
-                  <svg className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
-                  </svg>
-                </button>
-              ) : (
-                <div className="flex items-center space-x-1">
-                  {/* Microphone Icon */}
+        {/* Desktop Modals */}
+        {showThemeModal && (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+            <div className="bg-gray-900/95 backdrop-blur-sm rounded-2xl p-6 w-full max-w-sm border border-white/10">
+              <h2 className="text-xl font-bold text-center mb-6 text-white">Choose Theme</h2>
+              <div className="grid grid-cols-2 gap-3 mb-4">
+                {themes.map((theme) => (
                   <button
-                    onClick={handleVoiceRecord}
-                    className={`p-2 transition-colors flex-shrink-0 ${
-                      isRecording ? "text-red-400 animate-pulse" : "text-gray-400 hover:text-gray-300"
+                    key={theme.class}
+                    onClick={() => handleThemeChange(theme.class)}
+                    className={`h-16 flex items-center justify-center text-white font-semibold text-sm relative ${theme.class} rounded-lg transition-transform hover:scale-105 ${
+                      activeProfile.theme === theme.class ? "ring-2 ring-white" : ""
                     }`}
                   >
-                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"
-                      />
-                    </svg>
+                    {theme.name}
                   </button>
-
-                  {/* Like Icon */}
-                  <button
-                    onClick={() => sendMessage("❤️")}
-                    className="p-2 text-gray-400 hover:text-red-400 transition-colors flex-shrink-0"
-                  >
-                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                      />
-                    </svg>
-                  </button>
-                </div>
-              )}
-            </form>
-
-            {/* Hidden File Input */}
-            <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
-          </div>
-        </div>
-      </div>
-
-      {/* Modals */}
-      {showThemeModal && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-gray-900/95 backdrop-blur-sm rounded-2xl p-6 w-full max-w-sm border border-white/10">
-            <h2 className="text-xl font-bold text-center mb-6 text-white">Choose Theme</h2>
-            <div className="grid grid-cols-2 gap-3 mb-4">
-              {themes.map((theme) => (
-                <button
-                  key={theme.class}
-                  onClick={() => handleThemeChange(theme.class)}
-                  className={`h-16 flex items-center justify-center text-white font-semibold text-sm relative ${theme.class} rounded-lg transition-transform hover:scale-105 ${
-                    activeProfile.theme === theme.class ? "ring-2 ring-white" : ""
-                  }`}
-                >
-                  {theme.name}
-                </button>
-              ))}
+                ))}
+              </div>
+              <button
+                onClick={() => setShowThemeModal(false)}
+                className="mt-6 w-full btn-primary py-2 px-4 rounded-lg font-semibold"
+              >
+                Close
+              </button>
             </div>
-            <button
-              onClick={() => setShowThemeModal(false)}
-              className="mt-6 w-full btn-primary py-2 px-4 rounded-lg font-semibold"
-            >
-              Close
-            </button>
           </div>
-        </div>
-      )}
+        )}
 
-      {showInfoModal && <InfoModal profile={activeProfile} onClose={() => setShowInfoModal(false)} />}
+        {showInfoModal && <InfoModal profile={activeProfile} onClose={() => setShowInfoModal(false)} />}
 
-      {showGroupManagement && (
-        <GroupManagementModal
-          group={activeProfile}
-          allProfiles={allProfiles}
-          onClose={() => setShowGroupManagement(false)}
-          onUpdateGroup={handleUpdateGroup}
-        />
-      )}
+        {showGroupManagement && (
+          <GroupManagementModal
+            group={activeProfile}
+            allProfiles={allProfiles}
+            onClose={() => setShowGroupManagement(false)}
+            onUpdateGroup={handleUpdateGroup}
+          />
+        )}
 
-      {showApiKeySetup && <ApiKeySetup onClose={() => setShowApiKeySetup(false)} />}
+        {showApiKeySetup && <ApiKeySetup onClose={() => setShowApiKeySetup(false)} />}
+      </div>
     </div>
   )
 }
